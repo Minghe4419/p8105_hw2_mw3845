@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(dplyr)
 ```
 
 ## Problem 1
@@ -27,5 +28,25 @@ tail(subway_df)
 ```
 
 So far, we read and clean the data of NYC's subway. The data contains ` line`, `station_name`, `station_latitude`, `station longitude`, `route1` to `route11`, `entry`, `vending`, `entrance_type`, and `ada`. 
+
 - Cleaning steps: the variables' names are converting into lower snake case; the 19 variables mentioned above are selected; and `entry` is converted into logical variable (`YES` to `TRUE`, `NO` to `FALSE`).
 - Dimension: the dimension of resulting dataset is `r nrow(subway_df)` x `r ncol(subway_df)`.
+
+###### Questions:
+
+- How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St 8th Avenue; 125st Broadway; 125st Lenox); the distinct function may be useful here.
+
+  _There are `r nrow(distinct(subway_df, line, station_name))` stations in the dataset._
+  
+- How many stations are ADA compliant?
+
+  _There are `r sum(distinct(subway_df, line, station_name, .keep_all=TRUE)$ada)` stations are ADA compliant._
+  
+- What proportion of station entrances / exits without vending allow entrance?
+
+  _of station extrances / exits without vending allow entrance._
+
+
+
+
+
