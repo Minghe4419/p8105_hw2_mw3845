@@ -19,6 +19,13 @@ read csv into dataframe first
 subway_df = 
   read_csv('./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv', na = "") |>
   janitor::clean_names() |>
-  select(line:entry, vending, ada)
-head(subway_df)
+  select(line:entry, vending, ada) |>
+  mutate(
+    entry = ifelse(entry=='YES', TRUE, FALSE)
+  )
+tail(subway_df)
 ```
+
+So far, we read and clean the data of NYC's subway. The data contains ` line`, `station_name`, `station_latitude`, `station longitude`, `route1` to `route11`, `entry`, `vending`, `entrance_type`, and `ada`. 
+- Cleaning steps: the variables' names are converting into lower snake case; the 19 variables mentioned above are selected; and `entry` is converted into logical variable (`YES` to `TRUE`, `NO` to `FALSE`).
+- Dimension: the dimension of resulting dataset is `r nrow(subway_df)` x `r ncol(subway_df)`.
