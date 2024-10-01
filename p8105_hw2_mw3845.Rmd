@@ -56,7 +56,7 @@ uni_station_df = distinct(subway_df, line, station_name, .keep_all=TRUE) |>
   
 - What proportion of station entrances / exits without vending allow entrance?
 
-  _`r ((sum(uni_station_df$entry) - sum(uni_station_df$vending)) / nrow(uni_station_df))*100`% of station extrances / exits without vending allow entrance._
+  _`r mean(filter(subway_df, vending == 'NO')$entry)*100`% of station entrances / exits without vending allow entrance. Note: Here we are not using the unique station data because a station might have multiple entrances / exits that the entry w/o vending could happen._
   
 ###### Reformatting the data to analyze the stations that serves A train:
   
