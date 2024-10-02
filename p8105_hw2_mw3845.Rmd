@@ -142,16 +142,19 @@ We read 3 baker-related datasets. Since the next step is to merge 3 datasets int
 
 We noticed a inconsisitency issue by checking for completeness and correctness. Note that the inconsistency in subjects are actually a single baker's different form of first name. Therefore, we easily solve this issue by `mutate`-ing the values in `bakes_df` and `results_df`.
 ```{r problem3_read_baker_data}
+#bakers.csv
 bakers_df = read_csv('./data/gbb_datasets/bakers.csv') |>
   janitor::clean_names() |>
   separate(baker_name, into = c("first_name", "last_name"), sep = " ", extra = "merge", fill = "right") |>
   select(first_name, last_name, everything())
 
+#bakes.csv
 bakes_df = read_csv('./data/gbb_datasets/bakes.csv') |>
   janitor::clean_names() |>
   rename(first_name = baker) |>
   mutate(first_name = if_else(first_name == '"Jo"', "Jo", first_name))
 
+#results.csv
 results_df = read_csv('./data/gbb_datasets/results.csv', skip = 2) |>
   janitor::clean_names() |>
   rename(first_name = baker) |>
@@ -170,16 +173,38 @@ bakes_df |>
   anti_join(bakers_df, by = c("first_name", "series")) |>
   distinct(first_name, series)
 ```
-###### Merge datasets
-We merge the 3 dataframes and then organize variables in an order that series and episode of corresponding baker, the bakers personal info, and then their performence in the show.
+###### Merge, organize, export full datasets
+We merge the 3 dataframes and then organize variables in an order that `series` and `episode` of corresponding baker, the bakers personal info, and their performence for each episode.
 ```{r merge_data}
+#merge bakers_df and results_df first
 bakers_results_df <- results_df |>
   left_join(bakers_df, by = c("first_name", "series"))
 
+#merge into full data
 full_dt <- bakers_results_df |>
   left_join(bakes_df, by = c("first_name", "series", "episode")) |>
   select('series', 'episode', 'first_name', 'last_name', 'baker_age', 'hometown', 'baker_occupation', everything())
 
 head(full_dt)
 ```
+
+```{r export_data}
+# generate path for the full dataset
+file_path = file.path('./data/gbb_datasets/', "gbb_full_data.csv")
+
+#export full data
+write_csv(full_dt, file_path)
+```
+
+###### Description of data cleaning
+
+We begin with importing 3 baker-related csv files. Then we start to clean the datasets one by one. For `bakers_df`, the variables names are cleaned, which also applies to other 2 dataframe. Since the other 2 dataset contains only first name for the bakers, we then create the `first_name` variable for the convenience to merge them later. Lastly, we re-organize the variables by placing `first_name` and `last_name` in the front of the dataset. For `bakes_df`, we cleaned the variable names, change `baker` to `first_name` for the consistency. Similarly, we skip the non-data rows(notes and empty) for `results_df` and clean it.
+
+As checking the completeness and correctness, we identify a baker who uses different names `Joanne` `Jo``"Jo"` in different datasets. The information from the website of this show confirmed our assumption so that we decide to use `Jo` as her name among the datasets. Consequently, this inconsistency is resolved after we re-run the completeness and correctness check.
+
+At last, we merge the data into one full dataset, and then organize the variables and observations in a reasonable way (illustrated in **Merge, organize, export full datasets**). The `full_dt` contains 11 variables and 1136 observations. The variables include both bakers' personal info and their performance during each episode. As we carefully clean all 3 datasets, the name standardization, the consistency and variable alignment can be ensured. I believe the `full_dt` is ready for more in-depth analysis.
+
+###### Winners and Star Bakers(Series 5 - 10)
+
+
 
