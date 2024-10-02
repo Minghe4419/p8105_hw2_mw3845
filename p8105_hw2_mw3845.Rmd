@@ -85,14 +85,17 @@ There are `r sum(pull(longer_uni_station_df, train) == 'A', na.rm = TRUE)` disti
 
 # Problem 2
 
-Here we read the data from `Mr Trash Wheel` sheet in the excel file. For data cleaning: the variable names are cleaned; non-data entry `...15` and `...16` are omitted; the empty rows are omitted; and the `sports_ball` is rounded and converted into the integer variable. **However, `homes_powered` contains 0s and NAs which instead could be computed by `weight_tons`, whether should we correct it?**
-```{r p2_read_and_clean_MrTW, eval=FALSE}
+Here we read the data from `Mr Trash Wheel` sheet in the excel file. For data cleaning: the variable names are cleaned; non-data entry `...15` and `...16` are omitted; the empty rows are omitted; and the `sports_ball` is rounded and converted into the integer variable. Then we add a variable `source` to this dataset so that we can better identify the data from it after combining this dataset with other two in the later part. **However, `homes_powered` contains 0s and NAs which instead could be computed by `weight_tons`, whether should we correct it?**
+```{r p2_read_and_clean_MrTW}
 mr_trash_df = 
-  read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Mr. Trash Wheel') |>
+  read_excel('./data/202409 Trash Wheel Collection Data.xlsx', 
+             sheet = 'Mr. Trash Wheel') |>
   janitor::clean_names() |>
   select(-x15, -x16) |>
   filter(!if_all(everything(), is.na)) |>
-  mutate(sports_balls = as.integer(round(sports_balls)))
+  mutate(sports_balls = as.integer(round(sports_balls)),
+         source = 'mr_trash_wheel',
+         year = as.double(year))
 
 tail(mr_trash_df)
 ```
@@ -103,18 +106,28 @@ Similarly, we read and clean the datasets of `Professor Trash Wheel` and `Gwynnd
 prof_trash_df = 
   read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Professor Trash Wheel') |>
   janitor::clean_names() |>
-  filter(!if_all(everything(), is.na))
-
+  filter(!if_all(everything(), is.na)) |>
+  mutate(source = 'professor_trash_wheel')
+  
 gwy_trash_df = 
   read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Gwynnda Trash Wheel') |>
   janitor::clean_names() |>
-  filter(!if_all(everything(), is.na))
+  filter(!if_all(everything(), is.na)) |>
+  mutate(source = 'gwynnda_trash_wheel')
 
-gwy_trash_df
+head(mr_trash_df)
 ```
 
-```{r test variable names}
-names(mr_trash_df)
-names(prof_trash_df)
-names(gwy_trash_df)
+```{r combine 3 datasets}
+combined_df = bind_rows(mr_trash_df, prof_trash_df, gwy_trash_df)
+
+# Check the structure
+str(combined_df)
+
+# Summary statistics
+summary(combined_df)
+
+# View the first few rows
+combined_df
+
 ```
