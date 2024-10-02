@@ -95,7 +95,7 @@ mr_trash_df =
   filter(!if_all(everything(), is.na)) |>
   mutate(sports_balls = as.integer(round(sports_balls)),
          source = 'mr_trash_wheel',
-         year = as.double(year))
+         year = as.double(year)) # year is converted to double variable for the combination of datasets
 
 tail(mr_trash_df)
 ```
@@ -115,7 +115,7 @@ gwy_trash_df =
   filter(!if_all(everything(), is.na)) |>
   mutate(source = 'gwynnda_trash_wheel')
 
-head(mr_trash_df)
+head(gwy_trash_df)
 ```
 
 ```{r combine 3 datasets}
@@ -131,3 +131,17 @@ summary(combined_df)
 combined_df
 
 ```
+
+Write a paragraph...
+
+# Problem 3
+
+```{r problem3_read_baker_data}
+bakers_df = read_csv('./data/gbb_datasets/bakers.csv') |>
+  janitor::clean_names()
+bakes_df = read_csv('./data/gbb_datasets/bakes.csv') |>
+  janitor::clean_names()
+results_df = read_csv('./data/gbb_datasets/results.csv', skip = 2) |>
+  janitor::clean_names()
+```
+
