@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(dplyr)
+library(readxl)
 ```
 
 ## Problem 1
@@ -84,7 +85,31 @@ There are `r sum(pull(longer_uni_station_df, train) == 'A', na.rm = TRUE)` disti
 
 # Problem 2
 
+Here we read the data from `Mr Trash Wheel` sheet in the excel file. For data cleaning: the variable names are cleaned; non-data entry `...15` and `...16` are omitted; the empty rows are omitted; and the `sports_ball` is rounded and converted into the integer variable. **However, `homes_powered` contains 0s and NAs which instead could be computed by `weight_tons`, whether should we correct it?**
+```{r p2_read_and_clean_MrTW, eval=FALSE}
+mr_trash_df = 
+  read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Mr. Trash Wheel') |>
+  janitor::clean_names() |>
+  select(-x15, -x16) |>
+  filter(!if_all(everything(), is.na)) |>
+  mutate(sports_balls = as.integer(round(sports_balls)))
 
+tail(trash_df)
+```
 
+Similarly, we read and clean the datasets of `Professor Trash Wheel` and `Gwynnda Trash Wheel` sheets in the excel. These two datasets are slightly different from `Mr Trash Wheel` that they does not contain non-data entry nor the `sports_balls` variable.
 
+```{r p2_read_and_clean_other_2_dataset}
+prof_trash_df = 
+  read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Professor Trash Wheel') |>
+  janitor::clean_names() |>
+  filter(!if_all(everything(), is.na))
+
+gwy_trash_df = 
+  read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Gwynnda Trash Wheel') |>
+  janitor::clean_names() |>
+  filter(!if_all(everything(), is.na))
+
+gwy_trash_df
+```
 
