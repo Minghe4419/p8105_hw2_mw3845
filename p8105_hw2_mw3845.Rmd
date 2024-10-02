@@ -45,18 +45,25 @@ uni_station_df = distinct(subway_df, line, station_name, .keep_all=TRUE) |>
     vending = ifelse(vending=='YES', TRUE, FALSE)
   )
 ```
-
-- How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St 8th Avenue; 125st Broadway; 125st Lenox); the distinct function may be useful here.
-
-  _There are `r nrow(uni_station_df)` stations in the dataset._
+- How many distinct stations are there?
   
+  _There are `r nrow(uni_station_df)` stations in the dataset._
+
 - How many stations are ADA compliant?
 
-  _There are `r sum(uni_station_df$ada)` stations are ADA compliant._
+  _There are `r sum(pull(uni_station_df, ada))` stations are ADA compliant._
   
 - What proportion of station entrances / exits without vending allow entrance?
 
-  _`r mean(filter(subway_df, vending == 'NO')$entry)*100`% of station entrances / exits without vending allow entrance. Note: Here we are not using the unique station data because a station might have multiple entrances / exits that the entry w/o vending could happen._
+  _37.7% of station entrances / exits without vending allow entrance.  Note: Here we are not using the unique station data   because a station might have multiple entrances / exits that the entry w/o vending could happen._
+
+```{r entry w/o vending}
+subway_df |>
+  filter(vending == 'NO') |>
+  pull(entry) |>
+  mean()
+```
+
   
 ###### Reformatting the data to analyze the stations that serves A train:
   
@@ -69,11 +76,15 @@ longer_uni_station_df = pivot_longer(
   values_to = 'train'
 )
 # filter the longer dataframe to count ADA compliant A train
-a_train_df = longer_uni_station_df %>%
+a_train_df = longer_uni_station_df |>
   filter(train == 'A')
 ```
 
-There are `r sum(longer_uni_station_df$train == 'A', na.rm = TRUE)` distinct stations serve A train. And `r sum(a_train_df$ada)` of the stations that serve A train are ADA compliant.
+There are `r sum(pull(longer_uni_station_df, train) == 'A', na.rm = TRUE)` distinct stations serve A train. And `r sum(pull(a_train_df, ada))` of the stations that serve A train are ADA compliant.
+
+# Problem 2
+
+
 
 
 
