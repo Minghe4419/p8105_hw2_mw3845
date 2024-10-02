@@ -136,7 +136,11 @@ Write a paragraph...
 
 # Problem 3
 
+###### Read, clean, and wrangle
+
 We read 3 baker-related datasets. Since the next step is to merge 3 datasets into one cleaned dataframe, we seperate the`baker_name` of `bakers_df` into `first_name` and `last_name` so that it can match the `baker` variables of other two datasets. The `baker` in `bakes_df` and `results_df` only contain the bakers' first name.
+
+We noticed a inconsisitency issue by checking for completeness and correctness. Note that the inconsistency in subjects are actually a single baker's different form of first name. Therefore, we easily solve this issue by `mutate`-ing the values in `bakes_df` and `results_df`.
 ```{r problem3_read_baker_data}
 bakers_df = read_csv('./data/gbb_datasets/bakers.csv') |>
   janitor::clean_names() |>
@@ -145,14 +149,24 @@ bakers_df = read_csv('./data/gbb_datasets/bakers.csv') |>
 
 bakes_df = read_csv('./data/gbb_datasets/bakes.csv') |>
   janitor::clean_names() |>
-  rename(first_name = baker)
+  rename(first_name = baker) |>
+  mutate(first_name = if_else(first_name == '"Jo"', "Jo", first_name))
 
 results_df = read_csv('./data/gbb_datasets/results.csv', skip = 2) |>
   janitor::clean_names() |>
-  rename(first_name = baker)
-
-bakers_df
-#check for completeness and correctness
-
+  rename(first_name = baker) |>
+  mutate(first_name = if_else(first_name == "Joanne", "Jo", first_name))
 ```
+###### Check completeness and correctness
 
+While checking completeness and correctness for the first time, we found subjects with `first_name = Joanne` in `bakes_df` and `first_name = "Jo"` in `results_df` that doesn't match with the `bakers_df`. After checking the source website, we identify that this subject is Jo Wheatley from Series 2 (She uses Jo in the show as the short form of Joanne). After mutating her name to Jo, the inconsistency in bakers is solved.
+```{r check_completeness}
+#check for completeness and correctness
+results_df |>
+  anti_join(bakers_df, by = c("first_name", "series")) |>
+  distinct(first_name, series)
+
+bakes_df |>
+  anti_join(bakers_df, by = c("first_name", "series")) |>
+  distinct(first_name, series)
+```
