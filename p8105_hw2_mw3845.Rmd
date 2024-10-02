@@ -170,3 +170,16 @@ bakes_df |>
   anti_join(bakers_df, by = c("first_name", "series")) |>
   distinct(first_name, series)
 ```
+###### Merge datasets
+We merge the 3 dataframes and then organize variables in an order that series and episode of corresponding baker, the bakers personal info, and then their performence in the show.
+```{r merge_data}
+bakers_results_df <- results_df |>
+  left_join(bakers_df, by = c("first_name", "series"))
+
+full_dt <- bakers_results_df |>
+  left_join(bakes_df, by = c("first_name", "series", "episode")) |>
+  select('series', 'episode', 'first_name', 'last_name', 'baker_age', 'hometown', 'baker_occupation', everything())
+
+head(full_dt)
+```
+
