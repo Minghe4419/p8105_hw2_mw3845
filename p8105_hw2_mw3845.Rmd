@@ -136,12 +136,23 @@ Write a paragraph...
 
 # Problem 3
 
+We read 3 baker-related datasets. Since the next step is to merge 3 datasets into one cleaned dataframe, we seperate the`baker_name` of `bakers_df` into `first_name` and `last_name` so that it can match the `baker` variables of other two datasets. The `baker` in `bakes_df` and `results_df` only contain the bakers' first name.
 ```{r problem3_read_baker_data}
 bakers_df = read_csv('./data/gbb_datasets/bakers.csv') |>
-  janitor::clean_names()
+  janitor::clean_names() |>
+  separate(baker_name, into = c("first_name", "last_name"), sep = " ", extra = "merge", fill = "right") |>
+  select(first_name, last_name, everything())
+
 bakes_df = read_csv('./data/gbb_datasets/bakes.csv') |>
-  janitor::clean_names()
+  janitor::clean_names() |>
+  rename(first_name = baker)
+
 results_df = read_csv('./data/gbb_datasets/results.csv', skip = 2) |>
-  janitor::clean_names()
+  janitor::clean_names() |>
+  rename(first_name = baker)
+
+bakers_df
+#check for completeness and correctness
+
 ```
 
