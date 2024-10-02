@@ -94,7 +94,7 @@ mr_trash_df =
   filter(!if_all(everything(), is.na)) |>
   mutate(sports_balls = as.integer(round(sports_balls)))
 
-tail(trash_df)
+tail(mr_trash_df)
 ```
 
 Similarly, we read and clean the datasets of `Professor Trash Wheel` and `Gwynnda Trash Wheel` sheets in the excel. These two datasets are slightly different from `Mr Trash Wheel` that they does not contain non-data entry nor the `sports_balls` variable.
@@ -113,3 +113,8 @@ gwy_trash_df =
 gwy_trash_df
 ```
 
+```{r test variable names}
+names(mr_trash_df)
+names(prof_trash_df)
+names(gwy_trash_df)
+```
