@@ -218,3 +218,17 @@ best_bakers_df = full_dt |>
 best_bakers_df
 ```
 
+###### Viewership Data
+
+The `viewers_df` shows that this show is becoming more popular from series 1 to 7 and the viewership tends to become stable since series 8.
+```{r viewers_data}
+# read data and display first 10 rows
+viewers_df = read_csv('./data/gbb_datasets/viewers.csv') |>
+  janitor::clean_names()
+head(viewers_df, 10)
+```
+As importing the `viewers.csv`, we can compute the mean of series 1 and 5:
+
+- average viewership of series 1: `r mean(pull(viewers_df, series_1), na.rm=TRUE)`
+
+- average viewership of series 5: `r mean(pull(viewers_df, series_5), na.rm=TRUE)`
