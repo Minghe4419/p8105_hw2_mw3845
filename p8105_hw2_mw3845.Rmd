@@ -85,19 +85,17 @@ There are `r sum(pull(longer_uni_station_df, train) == 'A', na.rm = TRUE)` disti
 
 # Problem 2
 
-Here we read the data from `Mr Trash Wheel` sheet in the excel file. For data cleaning: the variable names are cleaned; non-data entry `...15` and `...16` are omitted; the empty rows are omitted; and the `sports_ball` is rounded and converted into the integer variable. Then we add a variable `source` to this dataset so that we can better identify the data from it after combining this dataset with other two in the later part. **However, `homes_powered` contains 0s and NAs which instead could be computed by `weight_tons`, whether should we correct it?**
+Here we read the data from `Mr Trash Wheel` sheet in the excel file. For data cleaning: the variable names are cleaned; non-data entry `...15` and `...16` are omitted; the empty rows and non-dumpster-specific are omitted; and the `sports_ball` is rounded and converted into the integer variable. Then we add a variable `source` to this dataset so that we can better identify the data from it after combining this dataset with other two in the later part. 
 ```{r p2_read_and_clean_MrTW}
 mr_trash_df = 
   read_excel('./data/202409 Trash Wheel Collection Data.xlsx', 
              sheet = 'Mr. Trash Wheel') |>
   janitor::clean_names() |>
   select(-x15, -x16) |>
-  filter(!if_all(everything(), is.na)) |>
+  filter(!if_all(date, is.na)) |>
   mutate(sports_balls = as.integer(round(sports_balls)),
          source = 'mr_trash_wheel',
          year = as.double(year)) # year is converted to double variable for the combination of datasets
-
-tail(mr_trash_df)
 ```
 
 Similarly, we read and clean the datasets of `Professor Trash Wheel` and `Gwynnda Trash Wheel` sheets in the excel. These two datasets are slightly different from `Mr Trash Wheel` that they does not contain non-data entry nor the `sports_balls` variable.
@@ -106,33 +104,28 @@ Similarly, we read and clean the datasets of `Professor Trash Wheel` and `Gwynnd
 prof_trash_df = 
   read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Professor Trash Wheel') |>
   janitor::clean_names() |>
-  filter(!if_all(everything(), is.na)) |>
+  filter(!if_all(date, is.na)) |>
   mutate(source = 'professor_trash_wheel')
   
 gwy_trash_df = 
   read_excel('./data/202409 Trash Wheel Collection Data.xlsx', sheet = 'Gwynnda Trash Wheel') |>
   janitor::clean_names() |>
-  filter(!if_all(everything(), is.na)) |>
+  filter(!if_all(date, is.na)) |>
   mutate(source = 'gwynnda_trash_wheel')
-
-head(gwy_trash_df)
 ```
 
 ```{r combine 3 datasets}
 combined_df = bind_rows(mr_trash_df, prof_trash_df, gwy_trash_df)
-
-# Check the structure
-str(combined_df)
-
-# Summary statistics
-summary(combined_df)
-
-# View the first few rows
-combined_df
-
+skimr::skim(combined_df)
 ```
 
-Write a paragraph...
+In the combined dataset, there are `r nrow(combined_df)` observations key variables including `date` when the dumpster collected, dumpster types, `homes_powered` computed by `weight_tons`, and the generated `source` which can identify which datasets the observation comes from. The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash_df, weight_tons))`. The total cigarette butts collected by Gwynnda in June of 2022 is `r as.integer(sum(pull(filter(gwy_trash_df, month=='June' & year==2022), cigarette_butts)))`.
+
+__Limitation of original data:__
+
+_-Using the available data of `weighted_tons` in `prof_trash_df`, we found that the total weight computed in the original sheet is false, since it didn't include the last 2 observations while taking the sum._ 
+
+_- In skim table of combined_df, the `homes_powered` contains missing values while the `weight_tons` doesn't. However, in `homes powered note`, `they`homes_powered` can be computed using the formula of `weights_tons` given in the notes. If there is a specific reason that they are left un-computed, the data entriers should indicate it in the notes._
 
 # Problem 3
 
